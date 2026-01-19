@@ -35,19 +35,25 @@ public class ClinicalEvidenceReview {
     private List<ClinicalAcmg> acmg;
     private ClinicalProperty.ClinicalSignificance clinicalSignificance;
     private ClinicalDiscussion discussion;
+    private List<String> tags;
+    private double score;
 
     public ClinicalEvidenceReview() {
         this.select = false;
         this.acmg = new ArrayList<>();
+        this.tags = new ArrayList<>();
     }
 
     public ClinicalEvidenceReview(boolean select, String tier, List<ClinicalAcmg> acmg,
-                                  ClinicalSignificance clinicalSignificance, ClinicalDiscussion discussion) {
+                                  ClinicalSignificance clinicalSignificance, ClinicalDiscussion discussion,
+                                  List<String> tags, double score) {
         this.select = select;
         this.tier = tier;
         this.acmg = acmg;
         this.clinicalSignificance = clinicalSignificance;
         this.discussion = discussion;
+        this.tags = tags;
+        this.score = score;
     }
 
     @Override
@@ -58,6 +64,8 @@ public class ClinicalEvidenceReview {
         sb.append(", acmg=").append(acmg);
         sb.append(", clinicalSignificance=").append(clinicalSignificance);
         sb.append(", discussion='").append(discussion).append('\'');
+        sb.append(", tags=").append(tags);
+        sb.append(", score=").append(score);
         sb.append('}');
         return sb.toString();
     }
@@ -104,6 +112,24 @@ public class ClinicalEvidenceReview {
 
     public ClinicalEvidenceReview setDiscussion(ClinicalDiscussion discussion) {
         this.discussion = discussion;
+        return this;
+    }
+
+    public List<String> getTags() {
+        return tags;
+    }
+
+    public ClinicalEvidenceReview setTags(List<String> tags) {
+        this.tags = tags;
+        return this;
+    }
+
+    public double getScore() {
+        return score;
+    }
+
+    public ClinicalEvidenceReview setScore(double score) {
+        this.score = score;
         return this;
     }
 }

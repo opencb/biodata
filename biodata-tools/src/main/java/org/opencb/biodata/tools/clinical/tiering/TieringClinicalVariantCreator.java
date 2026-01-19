@@ -26,10 +26,7 @@ import org.opencb.biodata.models.clinical.ClinicalDiscussion;
 import org.opencb.biodata.models.clinical.ClinicalProperty.ModeOfInheritance;
 import org.opencb.biodata.models.clinical.ClinicalProperty.Penetrance;
 import org.opencb.biodata.models.clinical.Disorder;
-import org.opencb.biodata.models.clinical.interpretation.ClinicalVariant;
-import org.opencb.biodata.models.clinical.interpretation.ClinicalVariantEvidence;
-import org.opencb.biodata.models.clinical.interpretation.DiseasePanel;
-import org.opencb.biodata.models.clinical.interpretation.GenomicFeature;
+import org.opencb.biodata.models.clinical.interpretation.*;
 import org.opencb.biodata.models.clinical.interpretation.exceptions.InterpretationAnalysisException;
 import org.opencb.biodata.models.core.Region;
 import org.opencb.biodata.models.variant.Variant;
@@ -276,8 +273,9 @@ public class TieringClinicalVariantCreator extends ClinicalVariantCreator {
             if (CollectionUtils.isNotEmpty(clinicalVariantEvidences)) {
                 logger.debug(variant.toStringSimple() + ": reported, num. evidences: " + clinicalVariantEvidences.size());
                 ClinicalVariant clinicalVariant = new ClinicalVariant(variant.getImpl(), Collections.emptyList(), Collections.emptyList(),
-                        Collections.emptyMap(), new ClinicalDiscussion(), null, ClinicalVariant.Status.NOT_REVIEWED,
-                        Collections.emptyList(), Collections.emptyMap());
+                        new ClinicalVariantFilter(), Collections.emptyList(), "", Collections.emptyList(), new ClinicalDiscussion(), null,
+                        Collections.emptyList(), ClinicalVariant.Status.NOT_REVIEWED, Collections.emptyList(), Collections.emptyList(),
+                        Collections.emptyMap());
                 clinicalVariant.setEvidences(clinicalVariantEvidences);
 
                 // Add variant to the list
