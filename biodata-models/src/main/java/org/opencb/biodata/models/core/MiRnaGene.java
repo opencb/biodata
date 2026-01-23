@@ -40,7 +40,7 @@ public class MiRnaGene {
 	private List<MiRnaMature> matures;
 
 	public MiRnaGene() {
-
+		matures = new ArrayList<>();
 	}
 
 	public MiRnaGene(String accession, String id, String status, String sequence, List<MiRnaMature> matures) {

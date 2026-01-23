@@ -249,6 +249,64 @@ message CancerHotspotVariantAnnotation {
     string source = 10;
 }
 
+message PubmedReference {
+    string id = 1;
+    string title = 2;
+    string journal = 3;
+    string date = 4;
+    string url = 5;
+}
+
+message PolygenicScoreVariant {
+    string effectAllele = 1;
+    string otherAllele = 2;
+    map<string, string> values = 3;
+}
+
+message StringMap {
+    map<string, string> values = 1;
+}
+
+message PolygenicScoreAnnotation {
+    string id = 1;
+    string name = 2;
+    string source = 3;
+    string version = 4;
+    repeated OntologyTermAnnotation traits = 5;
+    repeated PubmedReference pubmedReferences = 6;
+    repeated StringMap values = 7;
+    repeated PolygenicScoreVariant variants = 8;
+}
+
+message GeneImprinting {
+    string geneName = 1;
+    string status = 2;
+    string expressedAllele = 3;
+    string source = 4;
+    map<string, string> attributes = 5;
+}
+
+message GeneFusionBreakpoint {
+    string geneName = 1;
+    string chromosome = 2;
+    int32 position = 3;
+    string strand = 4;
+}
+
+message GeneFusionSummary {
+    string pair = 1;
+    string source = 2;
+    GeneFusionBreakpoint headGene = 3;
+    GeneFusionBreakpoint tailGene = 4;
+    repeated string pmid = 5;
+    repeated string diseases = 6;
+    bool kinase = 7;
+    bool oncogene = 8;
+    bool tumorSuppresor = 9;
+    bool receptor = 10;
+    bool transcriptionFactor = 11;
+}
+
 message GenomicSequenceContext {
     int32 start = 1;
     int32 end = 2;
@@ -292,7 +350,11 @@ message VariantAnnotation {
     repeated GwasAssociation gwas = 30;
     repeated CancerHotspotVariantAnnotation cancer_hotspots = 31;
 
-    GenomicSequenceContext genomic_sequence_context = 32;
+    repeated PolygenicScoreAnnotation polygenicScores = 32;
+    repeated GeneImprinting geneImprinting = 33;
+    repeated GeneFusionSummary geneFusions = 34;
+
+    GenomicSequenceContext genomic_sequence_context = 35;
 
     message AdditionalAttribute {
         map<string, string> attribute = 1;

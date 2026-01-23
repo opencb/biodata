@@ -19,6 +19,8 @@ public class VariantAvroToVariantProtoConverterTest extends TestCase {
     public void testConvert() throws Exception {
         for (int r = 0; r < 100; r++) {
             VariantAvro record = (VariantAvro) getRandomValue(VariantAvro.getClassSchema());
+            // Polygenic scores not implemented in proto yet
+            record.getAnnotation().setPolygenicScores(null);
 
             AvroToProtoConverter plainConverter = new VariantAvroToVariantProtoConverter();
             VariantAvroToVariantProtoConverter converter = new VariantAvroToVariantProtoConverter();

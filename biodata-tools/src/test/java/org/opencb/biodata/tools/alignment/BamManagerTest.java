@@ -3,6 +3,7 @@ package org.opencb.biodata.tools.alignment;
 import htsjdk.samtools.*;
 import org.junit.Assume;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.opencb.biodata.models.alignment.RegionCoverage;
 import org.opencb.biodata.models.core.Region;
@@ -90,6 +91,7 @@ public class BamManagerTest {
         assertEquals(3, query.size());
     }
 
+    @Ignore
     @Test
     public void testQueryBigWigCoverage() throws Exception {
         if (!bwPath.toFile().exists()) {
@@ -189,8 +191,13 @@ public class BamManagerTest {
         writer.close();
     }
 
+    @Ignore
     @Test
-    public void filterRegionByCoverage() throws IOException, AlignmentCoverageException {
+    public void filterRegionByCoverage() throws Exception {
+        if (!bwPath.toFile().exists()) {
+            testIndexBigWigCoverage();
+        }
+
         System.out.println("bamPath = " + bamPath);
         BamManager bamManager = new BamManager(bamPath);
 

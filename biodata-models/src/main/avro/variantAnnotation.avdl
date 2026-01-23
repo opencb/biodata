@@ -55,6 +55,35 @@ protocol VariantAnnotations {
         string source;
     }
 
+    record GeneImprinting {
+    	string geneName;
+    	string status;
+    	string expressedAllele;
+    	string source;
+    	union { null, map<string> } attributes;
+    }
+
+    record GeneFusionBreakpoint {
+    	string geneName;
+    	string chromosome;
+    	int position;
+    	string strand;
+    }
+
+    record GeneFusionSummary {
+    	string pair;
+    	string source;
+    	union { null, GeneFusionBreakpoint } headGene;
+    	union { null, GeneFusionBreakpoint } tailGene;
+    	union { null, array<string> } pmid;
+    	union { null, array<string> } diseases;
+    	union { null, boolean } kinase;
+    	union { null, boolean } oncogene;
+    	union { null, boolean } tumorSuppresor;
+    	union { null, boolean } receptor;
+    	union { null, boolean } transcriptionFactor;
+    }
+
     record PopulationFrequency {
         string study;
         string population;
@@ -275,6 +304,31 @@ protocol VariantAnnotations {
         union { null, array<GwasAssociationStudy> } studies;
     }
 
+    record PubmedReference {
+        union { null, string } id;
+        union { null, string } title;
+        union { null, string } journal;
+        union { null, string } `date`;
+        union { null, string } url;
+    }
+
+    record PolygenicScoreVariant {
+        union { null, string } effectAllele;
+        union { null, string } otherAllele;
+        union { null, map<string> } values;
+    }
+
+    record PolygenicScoreAnnotation {
+        union { null, string } id;
+        union { null, string } name;
+        union { null, string } source;
+        union { null, string } version;
+        union { null, array<OntologyTermAnnotation> } traits;
+        union { null, array<PubmedReference> } pubmedReferences;
+        union { null, array<map<string>> } values;
+        union { null, array<PolygenicScoreVariant> } variants;
+    }
+
     record CancerHotspotAlternateAnnotation {
         union { null, string } aminoacidAlternate;
         union { null, int } count;
@@ -341,9 +395,12 @@ protocol VariantAnnotations {
         union { null, array<GwasAssociation> } gwas;
         union { null, array<CancerHotspotVariantAnnotation> } cancerHotspots;
         union { null, array<Score> } functionalScore;
+        union { null, array<PolygenicScoreAnnotation> } polygenicScores;
         union { null, array<Cytoband> } cytoband;
         union { null, array<Repeat> } repeat;
         union { null, array<Drug> } drugs;
+        union { null, array<GeneImprinting> } geneImprinting;
+        union { null, array<GeneFusionSummary> } geneFusions;
         union { null, map<AdditionalAttribute> } additionalAttributes = null;
     }
 

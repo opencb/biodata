@@ -29,40 +29,29 @@ import java.io.FileOutputStream;
  */
 public class UniProtParser {
 
-    public final static String UNIPROT_CONTEXT = "org.opencb.biodata.formats.protein.uniprot.v202003jaxb";
+    public final static String UNIPROT_202003_CONTEXT = "org.opencb.biodata.formats.protein.uniprot.v202003jaxb";
+    public final static String UNIPROT_202502_CONTEXT = "org.opencb.biodata.formats.protein.uniprot.v202502jaxb";
+    public final static String UNIPROT_LATEST_CONTEXT = UNIPROT_202502_CONTEXT;
 
+    @Deprecated
     public static void saveXMLInfo(Object obj, String filename) throws FileNotFoundException, JAXBException {
+        saveXMLInfo(obj, UNIPROT_LATEST_CONTEXT, filename);
+    }
+
+    public static void saveXMLInfo(Object obj, String uniprotContext, String filename) throws FileNotFoundException, JAXBException {
         JAXBContext jaxbContext;
-        jaxbContext = JAXBContext.newInstance(UNIPROT_CONTEXT);
+        jaxbContext = JAXBContext.newInstance(uniprotContext);
         Marshaller marshaller = jaxbContext.createMarshaller();
         marshaller.marshal(obj, new FileOutputStream(filename));
     }
 
-    /**
-     * Checks if XML info path exists and loads it
-     *
-     * @throws javax.xml.bind.JAXBException
-     * @throws java.io.IOException
-     */
     public static Object loadXMLInfo(String filename) throws JAXBException {
-        Object obj = null;
-        JAXBContext jaxbContext = JAXBContext.newInstance(UNIPROT_CONTEXT);
-        Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-        obj = unmarshaller.unmarshal(new File(filename));
-        return obj;
+        return loadXMLInfo(filename, UNIPROT_LATEST_CONTEXT);
     }
 
-    /**
-     * Checks if XML info path exists and loads it
-     *
-     * @throws javax.xml.bind.JAXBException
-     * @throws java.io.IOException
-     */
-    public static Object loadXMLInfo(String filename, String uniprotVersion) throws JAXBException {
-        Object obj = null;
-        JAXBContext jaxbContext = JAXBContext.newInstance(uniprotVersion);
+    public static Object loadXMLInfo(String filename, String uniprotContext) throws JAXBException {
+        JAXBContext jaxbContext = JAXBContext.newInstance(uniprotContext);
         Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-        obj = unmarshaller.unmarshal(new File(filename));
-        return obj;
+        return unmarshaller.unmarshal(new File(filename));
     }
 }
