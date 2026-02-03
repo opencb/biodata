@@ -187,9 +187,9 @@ message Pharmacogenomics {
 }
 
 message GwasAssociationStudyTraitScores {
-    double pValue = 1;
-    double pValueMlog = 2;
-    string pValueText = 3;
+    double pvalue = 1;
+    double pvalueMlog = 2;
+    string pvalueText = 3;
     double orBeta = 4;
     string percentCI = 5;
 }
