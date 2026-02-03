@@ -261,9 +261,9 @@ protocol VariantAnnotations {
     }
 
     record GwasAssociationStudyTraitScores {
-        union { null, double } pValue;
-        union { null, double } pValueMlog;
-        union { null, string } pValueText;
+        union { null, double } pvalue;
+        union { null, double } pvalueMlog;
+        union { null, string } pvalueText;
         union { null, double } orBeta;
         union { null, string } percentCI;
     }
