@@ -10,7 +10,7 @@ jobs:
     uses: opencb/java-common-libs/.github/workflows/build-java-app-workflow.yml@develop
     with:
       maven_opts: --update-snapshots -DskipTests
-      upload_artifacts: false
+      upload_artifact: false
       needs_hadoop_preparation: false
       dependency_repos: "java-common-libs"
     secrets: inherit
